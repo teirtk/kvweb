@@ -1,0 +1,21 @@
+@charset "utf-8";
+@import "spectre.css/dist/spectre.min.css";
+@import "spectre.css/dist/spectre-icons.css";
+@import "flatpickr/dist/flatpickr.min.css";
+@import "flatpickr/dist/themes/confetti.css";
+@import "awesomplete/awesomplete.css";
+
+#search-result td:nth-child(5),
+#search-result td:nth-child(6),
+#search-result td:nth-child(7) {
+    text-align: right
+}
+.btn,.awesomplete,.flatpickr-input{
+    width:100%
+}
+.flatpickr-input{
+    text-align: center;
+}
+.columns.p-2 {
+    background: #32b643;
+}
