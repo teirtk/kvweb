@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             },
         });
 
-        waitForEl(button, () => button.addEventListener("click", () => addDataToTbody())
+        waitForEl(search, () => search.addEventListener("click", () => addDataToTbody())
         );
 
         let reset = document.querySelector("#reset")
