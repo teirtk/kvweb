@@ -1,12 +1,18 @@
-import './index.html';
-import './404.html';
-import './favicon.ico';
 import './styles.scss';
 import 'awesomplete';
 import 'flatpickr';
 import 'flatpickr/dist/l10n/vn.js';
 import oboe from 'oboe';
 
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js').then(registration => {
+            console.log('SW registered: ', registration);
+        }).catch(registrationError => {
+            console.log('SW registration failed: ', registrationError);
+        });
+    });
+}
 let fullcustomer, fullproduct, awecustomer, aweproduct;
 let end = new Date();
 let start = new Date();
@@ -106,9 +112,16 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(json => fullproduct = json);
     let timebtn = document.querySelector("#time");
     let search = document.querySelector("#find");
-    let status = new EventSource(`${server_url}/api/time`);
     waitForEl(timebtn, () => {
-        status.onmessage = event => timebtn.textContent = update_time(event.data)
+        if (typeof (EventSource) !== "undefined") {
+            let status = new EventSource(`${server_url}/api/time`);
+            status.onmessage = ev => {
+                timebtn.textContent = update_time(ev.data)
+            };
+            status.onerror = () => timebtn.textContent = update_time("")
+        } else {
+            console.log("Sorry, your browser does not support server-sent events...");
+        }
         timebtn.addEventListener("click", async () =>
             fetch(`${server_url}/api/update`)
                 .then(res => res.json())

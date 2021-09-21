@@ -1,11 +1,13 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'docs'),
-    filename: 'bundle.js'
+    filename: 'bundle.js',
+    clean: true,
   },
   module: {
     rules: [
@@ -25,19 +27,24 @@ module.exports = {
           }
         ]
       },
-      {
-        test: /\.(html|ico|png|svg|jpg|gif)$/,
-        use: 'file-loader?name=/[name].[ext]'
-      },
-      {
-        test: /\.(woff|woff2|eot|ttf|otf)$/,
-        use: [
-          'file-loader'
-        ]
-      },
     ]
   },
   plugins: [
+    new CopyPlugin({
+      patterns: [
+        {
+          from: 'src',
+          globOptions: {
+            ignore: [
+              '**/styles.scss',
+              '**/index.js'
+            ]
+          }
+        },],
+      options: {
+        concurrency: 100,
+      },
+    }),
     new MiniCssExtractPlugin({
       filename: "styles.css",
     })

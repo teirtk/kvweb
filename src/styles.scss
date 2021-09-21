@@ -19,3 +19,18 @@
 .columns.p-2 {
     background: #32b643;
 }
+
+label[for="date"] { 
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+.btn.btn-error {    
+    background-color: #B64400;
+}
