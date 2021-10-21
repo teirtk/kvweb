@@ -1,3 +1,4 @@
+"use strict";
 import './styles.scss';
 import 'awesomplete';
 import 'flatpickr';
@@ -102,8 +103,7 @@ let addDataToTbody = () => {
         });
 
 }
-
-document.addEventListener('DOMContentLoaded', () => {
+function doOnDocumentLoaded() {
     fetch(`${server_url}/api/customers?branchid=${branch}`)
         .then(res => res.json())
         .then(json => fullcustomer = json)
@@ -115,10 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
     waitForEl(timebtn, () => {
         if (typeof (EventSource) !== "undefined") {
             let status = new EventSource(`${server_url}/api/time`);
-            status.onmessage = ev => {
-                timebtn.textContent = update_time(ev.data)
-            };
-            status.onerror = () => timebtn.textContent = update_time("")
+            status.onmessage = ev => timebtn.textContent = update_time(ev.data)
+            status.onerror = () => timebtn.textContent = update_time("");
         } else {
             console.log("Sorry, your browser does not support server-sent events...");
         }
@@ -167,4 +165,10 @@ document.addEventListener('DOMContentLoaded', () => {
             eproduct.addEventListener("keydown", e => keyDown(e));
         });
     })
-})
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', doOnDocumentLoaded);
+} else {
+    doOnDocumentLoaded();
+}
