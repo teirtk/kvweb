@@ -20,6 +20,7 @@ let start = new Date();
 start.setFullYear(start.getFullYear() - 1);
 
 const branch = 11252;
+const header = ["createdDate", "code", "customerName", "productName", "quantity", "price", "discount"];
 const server_url = ((location.protocol === 'https:') ? "http://localhost" : "");
 const update_time = json => (json === "") ? "Server tắt" : dtFormat.format(new Date(json));
 // const branch = 87459;
@@ -91,7 +92,7 @@ let addDataToTbody = () => {
         .node("!.*", d => {
             if (d) {
                 let tr = nl.insertRow();
-                Object.keys(d).forEach((k, j) => { // Keys from object represent th.innerHTML
+                header.forEach((k, j) => { // Keys from object represent th.innerHTML
                     let cell = tr.insertCell(j);
                     cell.innerHTML = d[k];
                 });
@@ -103,20 +104,37 @@ let addDataToTbody = () => {
         });
 
 }
+
+let init = (str) => {
+    if (str == "" | str == "Server tắt") {
+        setTimeout(init, 1000, str)
+    } else {
+        fetch(`${server_url}/api/customers?branchid=${branch}`)
+            .then(res => res.json())
+            .then(json => fullcustomer = json)
+        fetch(`${server_url}/api/products?branchid=${branch}`)
+            .then(res => res.json())
+            .then(json => fullproduct = json);
+    }
+}
 function doOnDocumentLoaded() {
-    fetch(`${server_url}/api/customers?branchid=${branch}`)
-        .then(res => res.json())
-        .then(json => fullcustomer = json)
-    fetch(`${server_url}/api/products?branchid=${branch}`)
-        .then(res => res.json())
-        .then(json => fullproduct = json);
     let timebtn = document.querySelector("#time");
     let search = document.querySelector("#find");
     waitForEl(timebtn, () => {
         if (typeof (EventSource) !== "undefined") {
             let status = new EventSource(`${server_url}/api/time`);
-            status.onmessage = ev => timebtn.textContent = update_time(ev.data)
-            status.onerror = () => timebtn.textContent = update_time("");
+            status.onmessage = ev => {
+                if (timebtn.textContent === "Server tắt" | ev.data != "") {
+                    fetch(`${server_url}/api/customers?branchid=${branch}`)
+                        .then(res => res.json())
+                        .then(json => fullcustomer = json)
+                    fetch(`${server_url}/api/products?branchid=${branch}`)
+                        .then(res => res.json())
+                        .then(json => fullproduct = json);
+                }
+                timebtn.textContent = update_time(ev.data);
+                status.onerror = () => timebtn.textContent = update_time("");
+            }
         } else {
             console.log("Sorry, your browser does not support server-sent events...");
         }

@@ -14,10 +14,10 @@
     width:100%
 }
 .flatpickr-input{
-    text-align: center;
+    text-align: center
 }
 .columns.p-2 {
-    background: #32b643;
+    background: #32b643
 }
 
 label[for="date"] { 
@@ -28,9 +28,13 @@ label[for="date"] {
     overflow: hidden;
     padding: 0;
     position: absolute;
-    width: 1px;
+    width: 1px
 }
 
 .btn.btn-error {    
-    background-color: #B64400;
+    background-color: #B64400
+}
+
+thead {
+    text-align: center
 }

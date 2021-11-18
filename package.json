@@ -13,13 +13,13 @@
     "build": "webpack --mode production"
   },
   "devDependencies": {
-    "copy-webpack-plugin": "^9.0.1",
-    "css-loader": "^5.2.7",
-    "mini-css-extract-plugin": "^1.6.2",
-    "node-sass": "^5.0.0",
-    "sass-loader": "^11.1.1",
-    "style-loader": "^2.0.0",
-    "webpack": "^5.59.1",
+    "copy-webpack-plugin": "^10.0.0",
+    "css-loader": "^6.5.1",
+    "mini-css-extract-plugin": "^2.4.5",
+    "node-sass": "^6.0.1",
+    "sass-loader": "^12.3.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.64.1",
     "webpack-cli": "^4.9.1"
   }
 }
