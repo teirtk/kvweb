@@ -17,12 +17,14 @@ if ('serviceWorker' in navigator) {
 let fullcustomer, fullproduct, awecustomer, aweproduct;
 let end = new Date();
 let start = new Date();
+let resetting = false;
 start.setFullYear(start.getFullYear() - 1);
 
 const branch = 11252;
 const header = ["createdDate", "code", "customerName", "productName", "quantity", "price", "discount"];
 const server_url = ((location.protocol === 'https:') ? "http://localhost" : "");
 const update_time = json => (json === "") ? "Server tắt" : dtFormat.format(new Date(json));
+const isEmpty = str => (!str || str.length === 0);
 // const branch = 87459;
 const dFormat = new Intl.DateTimeFormat("vi-VN", {
     month: "2-digit",
@@ -105,84 +107,67 @@ let addDataToTbody = () => {
 
 }
 
-let init = (str) => {
-    if (str == "" | str == "Server tắt") {
-        setTimeout(init, 1000, str)
-    } else {
-        fetch(`${server_url}/api/customers?branchid=${branch}`)
-            .then(res => res.json())
-            .then(json => fullcustomer = json)
-        fetch(`${server_url}/api/products?branchid=${branch}`)
-            .then(res => res.json())
-            .then(json => fullproduct = json);
-    }
-}
-function doOnDocumentLoaded() {
+let doOnDocumentLoaded = () => {
     let timebtn = document.querySelector("#time");
     let search = document.querySelector("#find");
     waitForEl(timebtn, () => {
-        if (typeof (EventSource) !== "undefined") {
-            let status = new EventSource(`${server_url}/api/time`);
-            status.onmessage = ev => {
-                if (timebtn.textContent === "Server tắt" | ev.data != "") {
-                    fetch(`${server_url}/api/customers?branchid=${branch}`)
-                        .then(res => res.json())
-                        .then(json => fullcustomer = json)
-                    fetch(`${server_url}/api/products?branchid=${branch}`)
-                        .then(res => res.json())
-                        .then(json => fullproduct = json);
-                }
-                timebtn.textContent = update_time(ev.data);
-                status.onerror = () => timebtn.textContent = update_time("");
+        setInterval(() => {
+            if (!resetting) {
+                fetch(`${server_url}/api/time`)
+                    .then(res => res.text())
+                    .then(data => {
+                        console.log(data)
+                        if (timebtn.textContent === "Server tắt" && !isEmpty(data)) {
+                            fetch(`${server_url}/api/customers?branchid=${branch}`)
+                                .then(res => res.json())
+                                .then(json => fullcustomer = json)
+                            fetch(`${server_url}/api/products?branchid=${branch}`)
+                                .then(res => res.json())
+                                .then(json => fullproduct = json);
+                        }
+                        timebtn.textContent = update_time(data);
+                    })
             }
-        } else {
-            console.log("Sorry, your browser does not support server-sent events...");
-        }
-        timebtn.addEventListener("click", async () =>
-            fetch(`${server_url}/api/update`)
-                .then(res => res.json())
-                .then(json => {
-                    timebtn.textContent = update_time(json)
-                    search.click()
-                })
-        );
-        flatpickr("#date", {
-            mode: "range",
-            locale: "vn",
-            dateFormat: "d-m-Y",
-            defaultDate: [start, end],
-            onChange: function (selectedDates) {
-                if (selectedDates.length === 2) {
-                    start = selectedDates[0]
-                    end = selectedDates[1]
-                }
-            },
-        });
-
-        waitForEl(search, () => search.addEventListener("click", () => addDataToTbody())
-        );
-
-        let reset = document.querySelector("#reset")
-        waitForEl(reset, () => reset.addEventListener("click", async () => {
-            FreezeUI({ text: 'Khởi tạo dữ liệu' });
-            await fetch(`${server_url}/reset`);
-            window.location.replace("/")
-        }));
-
-        let ecustomer = document.querySelector("#customer");
-        waitForEl(ecustomer, () => {
-            awecustomer = new Awesomplete(ecustomer, { autoFirst: true, maxItems: 20 });
-            ecustomer.addEventListener("focusin", () => haveFocus(true));
-            ecustomer.addEventListener("keydown", e => keyDown(e));
-        });
-
-        let eproduct = document.querySelector("#product");
-        waitForEl(eproduct, () => {
-            aweproduct = new Awesomplete(eproduct, { maxItems: 20 });
-            eproduct.addEventListener("focusin", () => haveFocus(false));
-            eproduct.addEventListener("keydown", e => keyDown(e));
-        });
+        }, 60000)
     })
+    flatpickr("#date", {
+        mode: "range",
+        locale: "vn",
+        dateFormat: "d-m-Y",
+        defaultDate: [start, end],
+        onChange: (selectedDates) => {
+            if (selectedDates.length === 2) {
+                start = selectedDates[0]
+                end = selectedDates[1]
+            }
+        },
+    });
+
+    waitForEl(search, () => search.addEventListener("click", () => addDataToTbody())
+    );
+
+    let reset = document.querySelector("#reset")
+    waitForEl(reset, () => reset.addEventListener("click", async () => {
+        FreezeUI({ text: 'Khởi tạo dữ liệu' });
+        resetting = true
+        await fetch(`${server_url}/reset`);
+        resetting = false
+        window.location.replace("/")
+    }));
+
+    let ecustomer = document.querySelector("#customer");
+    waitForEl(ecustomer, () => {
+        awecustomer = new Awesomplete(ecustomer, { autoFirst: true, maxItems: 20 });
+        ecustomer.addEventListener("focusin", () => haveFocus(true));
+        ecustomer.addEventListener("keydown", e => keyDown(e));
+    });
+
+    let eproduct = document.querySelector("#product");
+    waitForEl(eproduct, () => {
+        aweproduct = new Awesomplete(eproduct, { maxItems: 20 });
+        eproduct.addEventListener("focusin", () => haveFocus(false));
+        eproduct.addEventListener("keydown", e => keyDown(e));
+    });
 }
 
 if (document.readyState === 'loading') {

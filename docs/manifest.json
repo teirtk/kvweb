@@ -5,7 +5,6 @@
   "short_name": "PWA",
   "scope": "./",
   "display": "standalone",
-  "start_url": "https://web-pricecheck.web.app/",
   "background_color": "#32b643",
   "theme_color": "#32b643",
   "description": "",
