@@ -111,24 +111,23 @@ let doOnDocumentLoaded = () => {
     let timebtn = document.querySelector("#time");
     let search = document.querySelector("#find");
     waitForEl(timebtn, () => {
-        setInterval(() => {
-            if (!resetting) {
-                fetch(`${server_url}/api/time`)
-                    .then(res => res.text())
-                    .then(data => {
-                        console.log(data)
-                        if (timebtn.textContent === "Server tắt" && !isEmpty(data)) {
-                            fetch(`${server_url}/api/customers?branchid=${branch}`)
-                                .then(res => res.json())
-                                .then(json => fullcustomer = json)
-                            fetch(`${server_url}/api/products?branchid=${branch}`)
-                                .then(res => res.json())
-                                .then(json => fullproduct = json);
-                        }
-                        timebtn.textContent = update_time(data);
-                    })
+        if (typeof (EventSource) !== "undefined") {
+            let status = new EventSource(`${server_url}/api/time`);
+            status.onmessage = ev => {
+                if (timebtn.textContent === "Server tắt" | ev.data != "") {
+                    fetch(`${server_url}/api/customers?branchid=${branch}`)
+                        .then(res => res.json())
+                        .then(json => fullcustomer = json)
+                    fetch(`${server_url}/api/products?branchid=${branch}`)
+                        .then(res => res.json())
+                        .then(json => fullproduct = json);
+                }
+                timebtn.textContent = update_time(ev.data);
+                status.onerror = () => timebtn.textContent = update_time("");
             }
-        }, 60000)
+        } else {
+            console.log("Sorry, your browser does not support server-sent events...");
+        }
     })
     flatpickr("#date", {
         mode: "range",
