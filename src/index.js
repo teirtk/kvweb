@@ -167,14 +167,6 @@ let doOnDocumentLoaded = () => {
         eproduct.addEventListener("focusin", () => haveFocus(false));
         eproduct.addEventListener("keydown", e => keyDown(e));
     });
-    let socket = new WebSocket(`ws://${window.location.hostname}/ws/time`);
-    socket.onopen = function (e) {
-        console.log('[websocket] Connection established');
-    }
-    socket.onmessage = function (event) {
-        // var msg = JSON.parse(event.data);
-        console.log(event)
-    }
 }
 
 if (document.readyState === 'loading') {
